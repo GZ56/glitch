@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
   <head>
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
@@ -20,13 +21,12 @@
               easing: 'linear',
             });
             sceneEl.appendChild(raindrop);
-            // Remove the raindrop after it falls out of view
             setTimeout(() => {
               if (raindrop.parentNode === sceneEl) {
                 sceneEl.removeChild(raindrop);
               }
-            }, 3100); // Ensure it's removed after animation completes
-          }, 20); // Increase frequency of rain generation
+            }, 3100);
+          }, 20);
         },
       });
 
@@ -43,13 +43,12 @@
             let z = Math.random() * 20 - 10;
             cloud.setAttribute('position', { x, y, z });
             sceneEl.appendChild(cloud);
-            // Remove the cloud after some time
             setTimeout(() => {
               if (cloud.parentNode === sceneEl) {
                 sceneEl.removeChild(cloud);
               }
-            }, 60000); // Adjust this value to control how long clouds last
-          }, 2000); // Increase frequency of cloud generation
+            }, 60000);
+          }, 2000);
         },
       });
 
@@ -62,18 +61,45 @@
             trunk.setAttribute('height', '2');
             trunk.setAttribute('color', '#8B4513');
             let x = Math.random() * 20 - 10;
-            let y = 1; // Trunk starts at half its height to be on the ground
+            let y = 1;
             let z = Math.random() * 20 - 10;
             trunk.setAttribute('position', { x, y, z });
             sceneEl.appendChild(trunk);
 
-            let foliage = document.createElement('a-sphere');
-            foliage.setAttribute('radius', '1');
-            foliage.setAttribute('color', '#228B22');
-            foliage.setAttribute('position', { x, y: 2.5, z }); // Position foliage above the trunk
+            // Create more detailed foliage
+            let foliage = document.createElement('a-entity');
+            foliage.setAttribute('position', { x, y: 2.1, z }); // Adjusted y position to 2.1
+
+            let leaf1 = document.createElement('a-cone');
+            leaf1.setAttribute('radius-bottom', '0.5');
+            leaf1.setAttribute('height', '0.5');
+            leaf1.setAttribute('color', '#228B22');
+            leaf1.setAttribute('position', '-0.3 0.3 0');
+            foliage.appendChild(leaf1);
+
+            let leaf2 = document.createElement('a-cone');
+            leaf2.setAttribute('radius-bottom', '0.5');
+            leaf2.setAttribute('height', '0.5');
+            leaf2.setAttribute('color', '#228B22');
+            leaf2.setAttribute('position', '0.3 0.3 0');
+            foliage.appendChild(leaf2);
+
+            let leaf3 = document.createElement('a-cone');
+            leaf3.setAttribute('radius-bottom', '0.5');
+            leaf3.setAttribute('height', '0.5');
+            leaf3.setAttribute('color', '#228B22');
+            leaf3.setAttribute('position', '0 0.3 -0.3');
+            foliage.appendChild(leaf3);
+
+            let leaf4 = document.createElement('a-cone');
+            leaf4.setAttribute('radius-bottom', '0.5');
+            leaf4.setAttribute('height', '0.5');
+            leaf4.setAttribute('color', '#228B22');
+            leaf4.setAttribute('position', '0 0.3 0.3');
+            foliage.appendChild(leaf4);
+
             sceneEl.appendChild(foliage);
 
-            // Remove the tree after some time
             setTimeout(() => {
               if (trunk.parentNode === sceneEl) {
                 sceneEl.removeChild(trunk);
@@ -81,8 +107,44 @@
               if (foliage.parentNode === sceneEl) {
                 sceneEl.removeChild(foliage);
               }
-            }, 60000); // Adjust this value to control how long trees last
-          }, 1000); // Increase frequency of tree generation
+            }, 60000);
+          }, 1000);
+        },
+      });
+
+      AFRAME.registerComponent('falling-leaves', {
+        init: function () {
+          let sceneEl = document.querySelector('a-scene');
+          setInterval(() => {
+            let leaf = document.createElement('a-plane');
+            leaf.setAttribute('width', '0.1');
+            leaf.setAttribute('height', '0.2');
+            leaf.setAttribute('color', '#228B22');
+            leaf.setAttribute('rotation', '0 0 45');
+            let x = Math.random() * 20 - 10;
+            let y = Math.random() * 5 + 2;
+            let z = Math.random() * 20 - 10;
+            leaf.setAttribute('position', { x, y, z });
+            leaf.setAttribute('animation', {
+              property: 'position',
+              to: `${x} 0 ${z}`,
+              dur: 5000,
+              easing: 'linear',
+            });
+            leaf.setAttribute('animation__rotation', {
+              property: 'rotation',
+              to: '360 360 0',
+              dur: 5000,
+              easing: 'linear',
+              loop: true,
+            });
+            sceneEl.appendChild(leaf);
+            setTimeout(() => {
+              if (leaf.parentNode === sceneEl) {
+                sceneEl.removeChild(leaf);
+              }
+            }, 5100);
+          }, 1000);
         },
       });
 
@@ -121,7 +183,7 @@
           let sceneEl = document.querySelector('a-scene');
           setInterval(() => {
             let bird = document.createElement('a-entity');
-            
+
             // Create bird body
             let body = document.createElement('a-box');
             body.setAttribute('depth', '0.5');
@@ -129,7 +191,7 @@
             body.setAttribute('width', '0.2');
             body.setAttribute('color', '#FF4500');
             bird.appendChild(body);
-            
+
             // Create left wing
             let leftWing = document.createElement('a-cone');
             leftWing.setAttribute('radius-bottom', '0.2');
@@ -146,7 +208,7 @@
               loop: true
             });
             bird.appendChild(leftWing);
-            
+
             // Create right wing
             let rightWing = document.createElement('a-cone');
             rightWing.setAttribute('radius-bottom', '0.2');
@@ -191,30 +253,46 @@
             });
             sceneEl.appendChild(bird);
 
-            // Remove the bird after some time
             setTimeout(() => {
               if (bird.parentNode === sceneEl) {
                 sceneEl.removeChild(bird);
               }
-            }, 60000); // Adjust this value to control how long birds last
-          }, 2000); // Frequency of bird generation
+            }, 60000);
+          }, 2000);
         },
       });
     </script>
   </head>
   <body>
-    <a-scene infinite-rain infinite-clouds infinite-trees birds>
+    <a-scene>
+      <a-entity camera look-controls wasd-controls jump-ability></a-entity>
+
+      <!-- Infinite rain component -->
+      <a-entity infinite-rain></a-entity>
+
+      <!-- Infinite clouds component -->
+      <a-entity infinite-clouds></a-entity>
+
+      <!-- Infinite trees component -->
+      <a-entity infinite-trees></a-entity>
+
+      <!-- Falling leaves component -->
+      <a-entity falling-leaves></a-entity>
+
+      <!-- Birds component -->
+      <a-entity birds></a-entity>
+
+      <!-- Ground plane -->
       <a-plane
-        position="0 0 0"
+        position="0 0 -4"
         rotation="-90 0 0"
-        width="40"
-        height="40"
+        width="4"
+        height="4"
         color="#7BC8A4"
       ></a-plane>
-      <a-sky color="#87CEEB"></a-sky>
-      
-      <a-entity camera wasd-controls look-controls jump-ability position="0 1.6 0">
-      </a-entity>
+
+      <!-- Sky -->
+      <a-sky color="#FFEEE9"></a-sky>
     </a-scene>
   </body>
 </html>
