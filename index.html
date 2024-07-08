@@ -1,9 +1,61 @@
 <html>
   <head>
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script>
+      AFRAME.registerComponent('infinite-rain', {
+        init: function () {
+          let sceneEl = document.querySelector('a-scene');
+          setInterval(() => {
+            let raindrop = document.createElement('a-sphere');
+            raindrop.setAttribute('radius', '0.05');
+            raindrop.setAttribute('color', '#0000FF');
+            let x = Math.random() * 20 - 10;
+            let y = Math.random() * 10 + 10;
+            let z = Math.random() * 20 - 10;
+            raindrop.setAttribute('position', { x, y, z });
+            raindrop.setAttribute('animation', {
+              property: 'position',
+              to: `${x} -5 ${z}`,
+              dur: 3000,
+              easing: 'linear',
+            });
+            sceneEl.appendChild(raindrop);
+            // Remove the raindrop after it falls out of view
+            setTimeout(() => {
+              if (raindrop.parentNode === sceneEl) {
+                sceneEl.removeChild(raindrop);
+              }
+            }, 3100); // Ensure it's removed after animation completes
+          }, 20); // Increase frequency of rain generation
+        },
+      });
+
+      AFRAME.registerComponent('infinite-clouds', {
+        init: function () {
+          let sceneEl = document.querySelector('a-scene');
+          setInterval(() => {
+            let cloud = document.createElement('a-circle');
+            cloud.setAttribute('radius', '1');
+            cloud.setAttribute('color', '#FFFFFF');
+            cloud.setAttribute('rotation', '-90 0 0');
+            let x = Math.random() * 20 - 10;
+            let y = Math.random() * 10 + 10;
+            let z = Math.random() * 20 - 10;
+            cloud.setAttribute('position', { x, y, z });
+            sceneEl.appendChild(cloud);
+            // Remove the cloud after some time
+            setTimeout(() => {
+              if (cloud.parentNode === sceneEl) {
+                sceneEl.removeChild(cloud);
+              }
+            }, 60000); // Adjust this value to control how long clouds last
+          }, 2000); // Increase frequency of cloud generation
+        },
+      });
+    </script>
   </head>
   <body>
-    <a-scene>
+    <a-scene infinite-rain infinite-clouds>
       <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
       <a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>
       <a-cylinder
@@ -19,7 +71,7 @@
         height="4"
         color="#7BC8A4"
       ></a-plane>
-      <a-sky color="#ECECEC"></a-sky>
+      <a-sky color="#87CEEB"></a-sky>
     </a-scene>
   </body>
 </html>
