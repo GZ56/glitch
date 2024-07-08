@@ -52,23 +52,48 @@
           }, 2000); // Increase frequency of cloud generation
         },
       });
+
+      AFRAME.registerComponent('infinite-trees', {
+        init: function () {
+          let sceneEl = document.querySelector('a-scene');
+          setInterval(() => {
+            let trunk = document.createElement('a-cylinder');
+            trunk.setAttribute('radius', '0.2');
+            trunk.setAttribute('height', '2');
+            trunk.setAttribute('color', '#8B4513');
+            let x = Math.random() * 20 - 10;
+            let y = 1; // Trunk starts at half its height to be on the ground
+            let z = Math.random() * 20 - 10;
+            trunk.setAttribute('position', { x, y, z });
+            sceneEl.appendChild(trunk);
+
+            let foliage = document.createElement('a-sphere');
+            foliage.setAttribute('radius', '1');
+            foliage.setAttribute('color', '#228B22');
+            foliage.setAttribute('position', { x, y: 2.5, z }); // Position foliage above the trunk
+            sceneEl.appendChild(foliage);
+
+            // Remove the tree after some time
+            setTimeout(() => {
+              if (trunk.parentNode === sceneEl) {
+                sceneEl.removeChild(trunk);
+              }
+              if (foliage.parentNode === sceneEl) {
+                sceneEl.removeChild(foliage);
+              }
+            }, 60000); // Adjust this value to control how long trees last
+          }, 1000); // Increase frequency of tree generation
+        },
+      });
     </script>
   </head>
   <body>
-    <a-scene infinite-rain infinite-clouds>
-      <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
-      <a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>
-      <a-cylinder
-        position="1 0.75 -3"
-        radius="0.5"
-        height="1.5"
-        color="#FFC65D"
-      ></a-cylinder>
+    <a-scene infinite-rain infinite-clouds infinite-trees>
       <a-plane
-        position="0 0 -4"
+        position="0 0 0"
         rotation="-90 0 0"
-        width="4"
-        height="4"
+        width="40"
+        height="40"
         color="#7BC8A4"
       ></a-plane>
       <a-sky color="#87CEEB"></a-sky>
