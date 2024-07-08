@@ -85,10 +85,125 @@
           }, 1000); // Increase frequency of tree generation
         },
       });
+
+      AFRAME.registerComponent('jump-ability', {
+        schema: { speed: { type: 'number', default: 10 } },
+        init: function () {
+          this.onKeyDown = this.onKeyDown.bind(this);
+          this.isJumping = false;
+          this.velocity = 0;
+          document.addEventListener('keydown', this.onKeyDown);
+        },
+        onKeyDown: function (event) {
+          if (event.code === 'Space' && !this.isJumping) {
+            this.isJumping = true;
+            this.velocity = this.data.speed;
+          }
+        },
+        tick: function (time, timeDelta) {
+          if (this.isJumping) {
+            let position = this.el.getAttribute('position');
+            position.y += this.velocity * timeDelta / 1000;
+            this.velocity -= this.data.speed * 2 * timeDelta / 1000;
+
+            if (position.y <= 1.6) {
+              position.y = 1.6;
+              this.isJumping = false;
+              this.velocity = 0;
+            }
+            this.el.setAttribute('position', position);
+          }
+        },
+      });
+
+      AFRAME.registerComponent('birds', {
+        init: function () {
+          let sceneEl = document.querySelector('a-scene');
+          setInterval(() => {
+            let bird = document.createElement('a-entity');
+            
+            // Create bird body
+            let body = document.createElement('a-box');
+            body.setAttribute('depth', '0.5');
+            body.setAttribute('height', '0.2');
+            body.setAttribute('width', '0.2');
+            body.setAttribute('color', '#FF4500');
+            bird.appendChild(body);
+            
+            // Create left wing
+            let leftWing = document.createElement('a-cone');
+            leftWing.setAttribute('radius-bottom', '0.2');
+            leftWing.setAttribute('height', '0.1');
+            leftWing.setAttribute('position', '-0.15 0 0');
+            leftWing.setAttribute('rotation', '0 0 45');
+            leftWing.setAttribute('color', '#FF4500');
+            leftWing.setAttribute('animation', {
+              property: 'rotation',
+              to: '0 0 0',
+              dur: 500,
+              dir: 'alternate',
+              easing: 'easeInOutQuad',
+              loop: true
+            });
+            bird.appendChild(leftWing);
+            
+            // Create right wing
+            let rightWing = document.createElement('a-cone');
+            rightWing.setAttribute('radius-bottom', '0.2');
+            rightWing.setAttribute('height', '0.1');
+            rightWing.setAttribute('position', '0.15 0 0');
+            rightWing.setAttribute('rotation', '0 0 -45');
+            rightWing.setAttribute('color', '#FF4500');
+            rightWing.setAttribute('animation', {
+              property: 'rotation',
+              to: '0 0 0',
+              dur: 500,
+              dir: 'alternate',
+              easing: 'easeInOutQuad',
+              loop: true
+            });
+            bird.appendChild(rightWing);
+
+            // Create left eye
+            let leftEye = document.createElement('a-sphere');
+            leftEye.setAttribute('radius', '0.05');
+            leftEye.setAttribute('color', '#000000');
+            leftEye.setAttribute('position', '-0.1 0.1 0.25');
+            bird.appendChild(leftEye);
+
+            // Create right eye
+            let rightEye = document.createElement('a-sphere');
+            rightEye.setAttribute('radius', '0.05');
+            rightEye.setAttribute('color', '#000000');
+            rightEye.setAttribute('position', '0.1 0.1 0.25');
+            bird.appendChild(rightEye);
+
+            let x = Math.random() * 20 - 10;
+            let y = Math.random() * 5 + 2;
+            let z = Math.random() * 20 - 10;
+            bird.setAttribute('position', { x, y, z });
+            bird.setAttribute('animation', {
+              property: 'position',
+              to: `${Math.random() * 20 - 10} ${Math.random() * 5 + 2} ${Math.random() * 20 - 10}`,
+              dur: 10000,
+              easing: 'linear',
+              loop: true
+            });
+            sceneEl.appendChild(bird);
+
+            // Remove the bird after some time
+            setTimeout(() => {
+              if (bird.parentNode === sceneEl) {
+                sceneEl.removeChild(bird);
+              }
+            }, 60000); // Adjust this value to control how long birds last
+          }, 2000); // Frequency of bird generation
+        },
+      });
     </script>
   </head>
   <body>
-    <a-scene infinite-rain infinite-clouds infinite-trees>
+    <a-scene infinite-rain infinite-clouds infinite-trees birds>
       <a-plane
         position="0 0 0"
         rotation="-90 0 0"
@@ -97,6 +212,9 @@
         color="#7BC8A4"
       ></a-plane>
       <a-sky color="#87CEEB"></a-sky>
+      
+      <a-entity camera wasd-controls look-controls jump-ability position="0 1.6 0">
+      </a-entity>
     </a-scene>
   </body>
 </html>
